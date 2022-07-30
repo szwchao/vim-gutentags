@@ -59,6 +59,16 @@ function! gutentags#gtags_cscope#init(project_root) abort
         call mkdir(l:db_path, 'p')
     endif
 
+    " let l:file_list_cmd = gutentags#get_project_file_list_cmd(a:project_root)
+    " let l:gtags_files_path = l:db_path."/gtags.files"
+    " if !filereadable(l:gtags_files_path)
+        " execute "cd " .  a:project_root
+        " let g:gtag_cmd = a:project_root." > ".l:file_list_cmd." > ".l:db_path."/gtags.files"
+        " let l:temp = system(l:file_list_cmd)
+        " let l:cscope_list = split(l:temp, '\n')
+        " call writefile(l:cscope_list, l:gtags_files_path)
+    " endif
+    
     let b:gutentags_files['gtags_cscope'] = l:db_file
 
     execute 'set cscopeprg=' . fnameescape(g:gutentags_gtags_cscope_executable)
@@ -80,6 +90,7 @@ function! gutentags#gtags_cscope#generate(proj_dir, tags_file, gen_opts) abort
     " gtags doesn't honour GTAGSDBPATH and GTAGSROOT, so PWD and dbpath
     " have to be set
     let l:db_path = fnamemodify(a:tags_file, ':p:h')
+    " let l:gtags_files_path = l:db_path."/gtags.files"
 
     let l:proj_options_file = a:proj_dir . '/' . g:gutentags_gtags_options_file
 
@@ -88,7 +99,9 @@ function! gutentags#gtags_cscope#generate(proj_dir, tags_file, gen_opts) abort
         let l:proj_options = readfile(l:proj_options_file)
         let l:cmd += l:proj_options
     endif
-    let l:cmd += ['--incremental', '"'.l:db_path.'"']
+    " let l:cmd += ['--file', '"'.l:gtags_files_path.'"']
+    " let l:cmd += ['--incremental', '"'.l:db_path.'"']
+    let l:cmd += ['--incremental', '--skip-unreadable', '"'.l:db_path.'"']
     let l:cmd = gutentags#make_args(l:cmd)
 
     call gutentags#trace("Running: " . string(l:cmd))
@@ -112,11 +125,11 @@ function! gutentags#gtags_cscope#on_job_exit(job, exit_val) abort
         call s:add_db(l:dbfile_path)
     endif
 
-    if a:exit_val != 0 && !g:__gutentags_vim_is_leaving
-        call gutentags#warning(
-                    \"gtags-cscope job failed, returned: ".
-                    \string(a:exit_val))
-    endif
+    " if a:exit_val != 0 && !g:__gutentags_vim_is_leaving
+        " call gutentags#warning(
+                    " \"gtags-cscope job failed, returned: ".
+                    " \string(a:exit_val))
+    " endif
 endfunction
 
 " }}}

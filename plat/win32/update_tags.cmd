@@ -10,7 +10,7 @@ set CTAGS_ARGS=
 set TAGS_FILE=tags
 set PROJECT_ROOT=
 set FILE_LIST_CMD=
-set FILE_LIST_CMD_IS_ABSOLUTE=0
+set FILE_LIST_CMD_IS_ABSOLUTE=1
 set UPDATED_SOURCE=
 set POST_PROCESS_CMD=
 set PAUSE_BEFORE_EXIT=0
@@ -120,7 +120,8 @@ if ["%INDEX_WHOLE_PROJECT%"]==["1"] (
             rem http://stackoverflow.com/questions/9749071/cmd-iterate-stdin-piped-from-another-command
             echo call %FILE_LIST_CMD% -- with loop for prepending project root >> %LOG_FILE%
             type NUL > %TAGS_FILE%.files
-            for /F "usebackq delims=" %%F in (`%FILE_LIST_CMD%`) do @echo %PROJECT_ROOT%\%%F >> %TAGS_FILE%.files
+            rem for /F "usebackq delims=" %%F in (`%FILE_LIST_CMD%`) do @echo %PROJECT_ROOT%\%%F >> %TAGS_FILE%.files
+            for /F "usebackq delims=" %%F in (`%FILE_LIST_CMD%`) do @echo %%F >> %TAGS_FILE%.files
         )
         set CTAGS_ARGS=%CTAGS_ARGS% -L %TAGS_FILE%.files
     ) else (
